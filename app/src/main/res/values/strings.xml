@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">GDG Maps</string>
     <string name="ok">OK</string>
+    <string name="google.api.key">AIzaSyCYNGolqF3xryMfgl7rwo0M_kEa837qYF0</string>
+    <string name="banner">GDG Riga</string>
+    <string name="banner_description">GDG Riga</string>
+    <string name="tag_photo">Tag a Photo</string>
+    <string name="OK">OK</string>
+    <string name="photoPath">photoPath</string>
 </resources>
