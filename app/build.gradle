@@ -10,7 +10,6 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.test.InstrumentationTestRunner"
     }
 
     buildTypes {
@@ -28,9 +27,6 @@ android {
         main {
             java.srcDirs = ['src/main/java']
         }
-        androidTest {
-            java.srcDirs = ['src/androidTest/java']
-        }
     }
 }
 
@@ -40,6 +36,5 @@ dependencies {
     compile 'com.jakewharton:butterknife:6.1.0'
     compile 'com.google.android.gms:play-services:7.3.0'
     compile 'joda-time:joda-time:2.7'
-    androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.3.1'
     androidTestCompile 'org.hamcrest:hamcrest-all:1.3'
 }
