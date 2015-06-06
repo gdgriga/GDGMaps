@@ -2,7 +2,6 @@ package lv.gdgriga.gdgmaps.photo_view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.location.Location;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -11,9 +10,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import lv.gdgriga.gdgmaps.Location;
 import lv.gdgriga.gdgmaps.Photo;
 
 public class PhotoViewMapFragment extends MapFragment {
@@ -25,18 +24,8 @@ public class PhotoViewMapFragment extends MapFragment {
             map = googleMap;
             UiSettings uiSettings = map.getUiSettings();
             uiSettings.setMapToolbarEnabled(false);
-            map.setMyLocationEnabled(true);
-            map.setOnMyLocationChangeListener(locationListener);
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(Location.RIGA, 13));
             drawPhotos();
-        }
-    };
-
-    GoogleMap.OnMyLocationChangeListener locationListener = new GoogleMap.OnMyLocationChangeListener() {
-        @Override
-        public void onMyLocationChange(Location location) {
-            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
-            map.setOnMyLocationChangeListener(null);
         }
     };
 

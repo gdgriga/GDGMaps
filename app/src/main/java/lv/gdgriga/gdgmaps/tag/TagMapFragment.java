@@ -1,6 +1,5 @@
 package lv.gdgriga.gdgmaps.tag;
 
-import android.location.Location;
 import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -12,6 +11,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import lv.gdgriga.gdgmaps.Location;
 import lv.gdgriga.gdgmaps.Photo;
 
 public class TagMapFragment extends MapFragment {
@@ -22,22 +22,7 @@ public class TagMapFragment extends MapFragment {
         @Override
         public void onMapReady(GoogleMap googleMap) {
             map = googleMap;
-            map.setMyLocationEnabled(true);
-            map.setOnMyLocationChangeListener(onLocationChange);
-        }
-    };
-
-    GoogleMap.OnMyLocationChangeListener onLocationChange = new GoogleMap.OnMyLocationChangeListener() {
-        @Override
-        public void onMyLocationChange(Location location) {
-            if (photo == null) {
-                return;
-            }
-            map.setOnMyLocationChangeListener(null);
-            if (photo.getLocation() == null) {
-                photo.setLocation(new LatLng(location.getLatitude(), location.getLongitude()));
-            }
-            addPhotoMarker();
+            drawPhoto();
         }
     };
 
@@ -62,6 +47,27 @@ public class TagMapFragment extends MapFragment {
         }
     };
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        getMapAsync(onMapReady);
+    }
+
+    void tagPhoto(Photo photo) {
+        this.photo = photo;
+    }
+
+    void drawPhoto() {
+        setPhotoLocationIfAbsent();
+        addPhotoMarker();
+    }
+
+    void setPhotoLocationIfAbsent() {
+        if (photo.getLocation() == null) {
+            photo.setLocation(Location.RIGA);
+        }
+    }
+
     void addPhotoMarker() {
         LatLng photoLocation = photo.getLocation();
         Marker photoMarker = map.addMarker(new MarkerOptions().position(photoLocation)
@@ -74,16 +80,6 @@ public class TagMapFragment extends MapFragment {
         }
         map.setOnMarkerDragListener(onMarkerDragListener);
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(photoLocation, 13));
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        getMapAsync(onMapReady);
-    }
-
-    void tagPhoto(Photo photo) {
-        this.photo = photo;
     }
 
     public Photo getPhoto() {
