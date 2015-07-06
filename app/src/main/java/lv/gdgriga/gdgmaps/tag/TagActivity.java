@@ -41,6 +41,7 @@ public class TagActivity extends Activity {
     }
 
     boolean userConfirmedToStorePhoto() {
+        // show dialog
         return true;
     }
 
