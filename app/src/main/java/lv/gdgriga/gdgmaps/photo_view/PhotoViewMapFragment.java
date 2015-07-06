@@ -24,7 +24,7 @@ public class PhotoViewMapFragment extends MapFragment {
             map = googleMap;
             UiSettings uiSettings = map.getUiSettings();
             uiSettings.setMapToolbarEnabled(false);
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(Location.RIGA, 13));
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(Location.RIGA, Location.DEFAULT_ZOOM));
             drawPhotos();
         }
     };
