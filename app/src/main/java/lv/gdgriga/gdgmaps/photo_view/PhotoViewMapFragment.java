@@ -1,24 +1,21 @@
 package lv.gdgriga.gdgmaps.photo_view;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.*;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.model.*;
 
 import lv.gdgriga.gdgmaps.Location;
 import lv.gdgriga.gdgmaps.Photo;
 
 public class PhotoViewMapFragment extends MapFragment {
-    GoogleMap map;
+    private GoogleMap map;
 
-    OnMapReadyCallback onMapReady = new OnMapReadyCallback() {
+    private final OnMapReadyCallback onMapReady = new OnMapReadyCallback() {
         @Override
         public void onMapReady(GoogleMap googleMap) {
             map = googleMap;
@@ -26,6 +23,22 @@ public class PhotoViewMapFragment extends MapFragment {
             uiSettings.setMapToolbarEnabled(false);
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(Location.RIGA, Location.DEFAULT_ZOOM));
             drawPhotos();
+            map.setOnMarkerClickListener(onMarkerCLick);
+        }
+    };
+
+    private final OnMarkerClickListener onMarkerCLick = new OnMarkerClickListener() {
+        @Override
+        public boolean onMarkerClick(Marker marker) {
+            showPhotoInGallery(marker.getSnippet());
+            return true;
+        }
+
+        private void showPhotoInGallery(String photoFilePath) {
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.setDataAndType(Uri.parse("file://" + photoFilePath), "image/*");
+            startActivity(intent);
         }
     };
 
@@ -35,18 +48,22 @@ public class PhotoViewMapFragment extends MapFragment {
         getMapAsync(onMapReady);
     }
 
-    void drawPhotos() {
+    private void drawPhotos() {
         map.clear();
         for (Photo photo : PhotosWithLocation.list(context())) {
-            Bitmap thumbnail = photo.getThumbnail();
-            BitmapDescriptor icon = thumbnail != null ? BitmapDescriptorFactory.fromBitmap(thumbnail) : BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE);
-            MarkerOptions marker = new MarkerOptions().position(photo.getLocation())
-                                                      .icon(icon);
-            map.addMarker(marker);
+            map.addMarker(markerFrom(photo));
         }
     }
 
-    Context context() {
+    private Context context() {
         return getActivity().getApplicationContext();
+    }
+
+    private MarkerOptions markerFrom(Photo photo) {
+        Bitmap thumbnail = photo.thumbnail;
+        BitmapDescriptor icon = thumbnail != null ? BitmapDescriptorFactory.fromBitmap(thumbnail) : BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE);
+        return new MarkerOptions().position(photo.location)
+                                  .icon(icon)
+                                  .snippet(photo.fileName);
     }
 }

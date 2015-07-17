@@ -6,22 +6,22 @@ import android.net.Uri;
 import android.provider.MediaStore;
 
 class PathFromUriResolver {
-    static final String[] projection = {MediaStore.Images.Media.DATA};
-    static final String selection = null;
-    static final String[] selectionArgs = null;
-    static final String sortOrder = null;
+    private static final String[] projection = {MediaStore.Images.Media.DATA};
+    private static final String selection = null;
+    private static final String[] selectionArgs = null;
+    private static final String sortOrder = null;
 
-    final Context context;
+    private final Context context;
 
-    public PathFromUriResolver(Context context) {
+    PathFromUriResolver(Context context) {
         this.context = context;
     }
 
-    public static PathFromUriResolver fromContext(Context context) {
+    static PathFromUriResolver fromContext(Context context) {
         return new PathFromUriResolver(context);
     }
 
-    public String resolve(Uri uri) {
+    String resolve(Uri uri) {
         Cursor cursor = context.getContentResolver()
                                .query(uri, projection, selection, selectionArgs, sortOrder);
         cursor.moveToFirst();

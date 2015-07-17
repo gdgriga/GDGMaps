@@ -3,9 +3,9 @@ package lv.gdgriga.gdgmaps.tag;
 import android.util.Log;
 
 class Coordinate {
-    int degrees;
-    int minutes;
-    int seconds;
+    private int degrees;
+    private int minutes;
+    private int seconds;
 
     static Coordinate fromDecimalDegrees(double decimalDegrees) {
         int realPart = (int) Math.floor(decimalDegrees);
@@ -13,7 +13,7 @@ class Coordinate {
         return calculateCoordinateForm(realPart, fractionalPart);
     }
 
-    static Coordinate calculateCoordinateForm(int realPart, double fractionalPart) {
+    private static Coordinate calculateCoordinateForm(int realPart, double fractionalPart) {
         Coordinate coordinate = new Coordinate();
         coordinate.degrees = realPart;
         coordinate.minutes = (int) Math.floor(60 * fractionalPart);

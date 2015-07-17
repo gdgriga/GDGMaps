@@ -13,7 +13,7 @@ import lv.gdgriga.gdgmaps.tag.TagActivity;
 public class PhotoViewActivity extends Activity {
     public static final int PICK_PHOTO_CODE = 0xBadFace;
 
-    View.OnClickListener onTagButtonClicked = new View.OnClickListener() {
+    private final View.OnClickListener onTagButtonClicked = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(Intent.ACTION_PICK);
@@ -30,13 +30,13 @@ public class PhotoViewActivity extends Activity {
         setupButton();
     }
 
-    void setupButton() {
+    private void setupButton() {
         Button button = (Button) findViewById(R.id.bottom_button);
         button.setText(R.string.tag_photo);
         button.setOnClickListener(onTagButtonClicked);
     }
 
-    void createMapFragment() {
+    private void createMapFragment() {
         getFragmentManager().beginTransaction()
                             .add(R.id.map_container, new PhotoViewMapFragment())
                             .commit();
@@ -50,7 +50,7 @@ public class PhotoViewActivity extends Activity {
         startTagActivity(pickPhotoIntent.getData());
     }
 
-    void startTagActivity(Uri photoUri) {
+    private void startTagActivity(Uri photoUri) {
         Intent tagIntent = new Intent(this, TagActivity.class);
         String photoPath = PathFromUriResolver.fromContext(getApplicationContext())
                                               .resolve(photoUri);

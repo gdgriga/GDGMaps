@@ -14,7 +14,7 @@ import java.io.IOException;
 import lv.gdgriga.gdgmaps.Photo;
 
 class StoreTagTask extends AsyncTask<Photo, Void, Void> {
-    static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy:MM:dd");
+    private static final DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy:MM:dd");
 
     @Override
     protected Void doInBackground(Photo... params) {
@@ -27,12 +27,12 @@ class StoreTagTask extends AsyncTask<Photo, Void, Void> {
         return null;
     }
 
-    void storeLocationTag(Photo photo) throws IOException {
-        ExifInterface exif = new ExifInterface(photo.getFileName());
-        double latitude = photo.getLocation().latitude;
+    private void storeLocationTag(Photo photo) throws IOException {
+        ExifInterface exif = new ExifInterface(photo.fileName);
+        double latitude = photo.location.latitude;
         exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, String.valueOf(Coordinate.fromDecimalDegrees(latitude)));
         exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, latitude < 0 ? "S" : "N");
-        double longitude = photo.getLocation().longitude;
+        double longitude = photo.location.longitude;
         exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, String.valueOf(Coordinate.fromDecimalDegrees(longitude)));
         exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, longitude < 0 ? "W" : "E");
         exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, "0/1");

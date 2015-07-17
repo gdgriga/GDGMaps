@@ -10,20 +10,20 @@ import java.util.Collections;
 import java.util.List;
 
 class PhotoFiles {
-    static final String CAMERA_IMAGE_BUCKET_ID = bucketId(externalPhotoStorage());
-    static final String DEFAULT_ORDERING = null;
+    private static final String CAMERA_IMAGE_BUCKET_ID = bucketId(externalPhotoStorage());
+    private static final String DEFAULT_ORDERING = null;
 
-    static String externalPhotoStorage() {
+    private static String externalPhotoStorage() {
         return Environment.getExternalStorageDirectory()
                           .toString() + "/DCIM/Camera";
     }
 
-    static String bucketId(String path) {
+    private static String bucketId(String path) {
         return String.valueOf(path.toLowerCase()
                                   .hashCode());
     }
 
-    public static List<String> list(Context context) {
+    static List<String> list(Context context) {
         String[] projection = {MediaStore.Images.Media.DATA};
         String selection = MediaStore.Images.Media.BUCKET_ID + " = ?";
         String[] selectionArgs = {CAMERA_IMAGE_BUCKET_ID};
@@ -36,7 +36,7 @@ class PhotoFiles {
         }
     }
 
-    static List<String> photoList(Cursor cursor) {
+    private static List<String> photoList(Cursor cursor) {
         if (!cursor.moveToFirst()) {
             return Collections.emptyList();
         }

@@ -33,18 +33,11 @@ public class TagActivity extends Activity {
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (userConfirmedToStorePhoto()) {
-                    storePhoto();
-                }
+                storePhoto();
                 finish();
             }
         });
         okButton.setEnabled(false);
-    }
-
-    private boolean userConfirmedToStorePhoto() {
-        // show dialog
-        return true;
     }
 
     private void storePhoto() {

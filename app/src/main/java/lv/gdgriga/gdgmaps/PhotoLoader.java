@@ -9,6 +9,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
 
+import static android.media.ExifInterface.*;
+
 public class PhotoLoader {
     public static Photo fromFile(String fileName) {
         try {
@@ -19,42 +21,46 @@ public class PhotoLoader {
         }
     }
 
-    static Photo fromFileName(String fileName) throws IOException {
+    private static Photo fromFileName(String fileName) throws IOException {
         Photo photo = fromExifInterface(new ExifInterface(fileName));
-        photo.setFileName(fileName);
+        photo.fileName = fileName;
         return photo;
     }
 
-    static Photo fromExifInterface(ExifInterface exif) {
+    private static Photo fromExifInterface(ExifInterface exif) {
         LatLng location = getLocationFrom(exif);
         Photo photo = new Photo();
-        photo.setLocation(location);
+        photo.location = location;
         if (exif.hasThumbnail()) {
-            photo.setThumbnail(getThumbnailFrom(exif));
+            photo.thumbnail = getThumbnailFrom(exif);
         }
         return photo;
     }
 
-    static Bitmap getThumbnailFrom(ExifInterface exif) {
+    private static Bitmap getThumbnailFrom(ExifInterface exif) {
         byte[] thumbnail = exif.getThumbnail();
         return BitmapFactory.decodeByteArray(thumbnail, 0, thumbnail.length);
     }
 
-    static LatLng getLocationFrom(ExifInterface exif) {
+    private static LatLng getLocationFrom(ExifInterface exif) {
         float[] latLong = new float[2];
         if (!exif.getLatLong(latLong)) {
             return null;
         }
-        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)));
-        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF)));
-        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)));
-        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF)));
-        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(ExifInterface.TAG_GPS_ALTITUDE)));
-        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF)));
-        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(ExifInterface.TAG_GPS_DATESTAMP)));
-        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(ExifInterface.TAG_GPS_PROCESSING_METHOD)));
-        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(ExifInterface.TAG_GPS_TIMESTAMP)));
-        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(ExifInterface.TAG_ORIENTATION)));
+        logTags(exif);
         return new LatLng(latLong[0], latLong[1]);
+    }
+
+    private static void logTags(ExifInterface exif) {
+        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(TAG_GPS_LATITUDE)));
+        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(TAG_GPS_LATITUDE_REF)));
+        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(TAG_GPS_LONGITUDE)));
+        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(TAG_GPS_LONGITUDE_REF)));
+        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(TAG_GPS_ALTITUDE)));
+        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(TAG_GPS_ALTITUDE_REF)));
+        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(TAG_GPS_DATESTAMP)));
+        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(TAG_GPS_PROCESSING_METHOD)));
+        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(TAG_GPS_TIMESTAMP)));
+        Log.d("PhotoLoader", String.valueOf(exif.getAttribute(TAG_ORIENTATION)));
     }
 }
