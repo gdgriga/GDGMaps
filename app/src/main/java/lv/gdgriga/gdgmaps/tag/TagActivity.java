@@ -9,7 +9,8 @@ import lv.gdgriga.gdgmaps.PhotoLoader;
 import lv.gdgriga.gdgmaps.R;
 
 public class TagActivity extends Activity {
-    TagMapFragment mapFragment;
+    private TagMapFragment mapFragment;
+    private Button okButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,17 +20,17 @@ public class TagActivity extends Activity {
         setupButton();
     }
 
-    void createMapFragment() {
+    private void createMapFragment() {
         mapFragment = new TagMapFragment();
         getFragmentManager().beginTransaction()
                             .add(R.id.map_container, mapFragment)
                             .commit();
     }
 
-    void setupButton() {
-        Button button = (Button) findViewById(R.id.bottom_button);
-        button.setText(R.string.OK);
-        button.setOnClickListener(new View.OnClickListener() {
+    private void setupButton() {
+        okButton = (Button) findViewById(R.id.bottom_button);
+        okButton.setText(R.string.TAP_TO_ADD);
+        okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (userConfirmedToStorePhoto()) {
@@ -38,14 +39,15 @@ public class TagActivity extends Activity {
                 finish();
             }
         });
+        okButton.setEnabled(false);
     }
 
-    boolean userConfirmedToStorePhoto() {
+    private boolean userConfirmedToStorePhoto() {
         // show dialog
         return true;
     }
 
-    void storePhoto() {
+    private void storePhoto() {
         new StoreTagTask().execute(mapFragment.getPhoto());
     }
 
@@ -55,9 +57,14 @@ public class TagActivity extends Activity {
         tagPhoto();
     }
 
-    void tagPhoto() {
+    private void tagPhoto() {
         String extra = getString(R.string.photoPath);
         String path = getIntent().getStringExtra(extra);
         mapFragment.tagPhoto(PhotoLoader.fromFile(path));
+    }
+
+    void enableButton() {
+        okButton.setText(R.string.STORE_TAG);
+        okButton.setEnabled(true);
     }
 }

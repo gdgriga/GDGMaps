@@ -1,39 +1,38 @@
 package lv.gdgriga.gdgmaps.tag;
 
-import android.util.Log;
-
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.*;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.*;
 
 import lv.gdgriga.gdgmaps.Location;
 import lv.gdgriga.gdgmaps.Photo;
 
 public class TagMapFragment extends MapFragment {
-    GoogleMap map;
-    Photo photo;
+    private GoogleMap map;
+    private Photo photo;
 
-    OnMapReadyCallback onMapReady = new OnMapReadyCallback() {
+    private final OnMapReadyCallback onMapReady = new OnMapReadyCallback() {
         @Override
         public void onMapReady(GoogleMap googleMap) {
             map = googleMap;
             map.setOnMapClickListener(onMapClick);
             focusOnRiga();
+            drawPhotoIfItHasLocation();
         }
 
         private void focusOnRiga() {
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(Location.RIGA, Location.DEFAULT_ZOOM));
         }
+
+        private void drawPhotoIfItHasLocation() {
+            if (photo.location != null) {
+                drawPhoto();
+            }
+        }
     };
 
-    OnMarkerDragListener onMarkerDragListener = new OnMarkerDragListener() {
+    private final OnMarkerDragListener onMarkerDragListener = new OnMarkerDragListener() {
         @Override
         public void onMarkerDragStart(Marker marker) {
 
@@ -46,16 +45,14 @@ public class TagMapFragment extends MapFragment {
 
         @Override
         public void onMarkerDragEnd(Marker marker) {
-            Log.d("OnMarkerDragListener", marker.getPosition()
-                                                .toString());
-            photo.setLocation(marker.getPosition());
+            photo.location = marker.getPosition();
         }
     };
 
-    OnMapClickListener onMapClick = new OnMapClickListener() {
+    private final OnMapClickListener onMapClick = new OnMapClickListener() {
         @Override
         public void onMapClick(LatLng clickLatLng) {
-            photo.setLocation(clickLatLng);
+            photo.location = clickLatLng;
             drawPhoto();
         }
     };
@@ -66,20 +63,17 @@ public class TagMapFragment extends MapFragment {
         getMapAsync(onMapReady);
     }
 
-    void tagPhoto(Photo photo) {
-        this.photo = photo;
-    }
-
-    void drawPhoto() {
+    private void drawPhoto() {
         addPhotoMarker();
+        ((TagActivity) getActivity()).enableButton();
     }
 
-    void addPhotoMarker() {
-        LatLng photoLocation = photo.getLocation();
+    private void addPhotoMarker() {
+        LatLng photoLocation = photo.location;
         Marker photoMarker = map.addMarker(new MarkerOptions().position(photoLocation)
                                                               .draggable(true));
-        if (photo.getThumbnail() != null) {
-            photoMarker.setIcon(BitmapDescriptorFactory.fromBitmap(photo.getThumbnail()));
+        if (photo.thumbnail != null) {
+            photoMarker.setIcon(BitmapDescriptorFactory.fromBitmap(photo.thumbnail));
         } else {
             photoMarker.setTitle("No Thumbnail");
             photoMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
@@ -88,7 +82,11 @@ public class TagMapFragment extends MapFragment {
         map.moveCamera(CameraUpdateFactory.newLatLng(photoLocation));
     }
 
-    public Photo getPhoto() {
+    Photo getPhoto() {
         return photo;
+    }
+
+    void tagPhoto(Photo photo) {
+        this.photo = photo;
     }
 }

@@ -5,6 +5,7 @@
     <string name="banner">GDG Riga</string>
     <string name="banner_description">GDG Riga</string>
     <string name="tag_photo">Tag a Photo</string>
-    <string name="OK">OK</string>
+    <string name="STORE_TAG">Store Tag</string>
     <string name="photoPath">photoPath</string>
+    <string name="TAP_TO_ADD">Tap to Add</string>
 </resources>
