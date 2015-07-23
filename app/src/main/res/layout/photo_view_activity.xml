@@ -5,10 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:weightSum="1">
-
     <include layout="@layout/title_bar"/>
-
     <include layout="@layout/map_container"/>
-
     <include layout="@layout/bottom_button"/>
 </LinearLayout>
