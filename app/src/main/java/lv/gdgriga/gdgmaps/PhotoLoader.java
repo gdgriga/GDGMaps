@@ -36,11 +36,6 @@ public class PhotoLoader {
         return photo;
     }
 
-    private static Bitmap getThumbnailFrom(ExifInterface exif) {
-        byte[] thumbnail = exif.getThumbnail();
-        return BitmapFactory.decodeByteArray(thumbnail, 0, thumbnail.length);
-    }
-
     private static Void getLocationFrom(ExifInterface exif) {
         float[] latLong = new float[2];
         if (!exif.getLatLong(latLong)) {
@@ -49,6 +44,11 @@ public class PhotoLoader {
         logTags(exif);
         // TODO: return a LatLng
         return null;
+    }
+
+    private static Bitmap getThumbnailFrom(ExifInterface exif) {
+        byte[] thumbnail = exif.getThumbnail();
+        return BitmapFactory.decodeByteArray(thumbnail, 0, thumbnail.length);
     }
 
     private static void logTags(ExifInterface exif) {
