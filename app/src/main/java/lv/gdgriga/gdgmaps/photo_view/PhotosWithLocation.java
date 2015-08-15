@@ -14,7 +14,7 @@ class PhotosWithLocation {
         List<Photo> photos = new ArrayList<>(files.size());
         for (String file : files) {
             Photo photo = PhotoLoader.fromFile(file);
-            if (photo != Photo.EMPTY /* TODO: check that location inside photo is not null */) {
+            if (photo != Photo.EMPTY && photo.hasLocation()) {
                 photos.add(photo);
             }
         }

@@ -4,6 +4,8 @@ import android.media.ExifInterface;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
@@ -29,10 +31,11 @@ class StoreTagTask extends AsyncTask<Photo, Void, Void> {
 
     private void storeLocationTag(Photo photo) throws IOException {
         ExifInterface exif = new ExifInterface(photo.fileName);
-        double latitude = 0; // TODO: get latitude from photo
+        LatLng location = photo.location;
+        double latitude = location.latitude;
         exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, String.valueOf(Coordinate.fromDecimalDegrees(latitude)));
         exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, latitude < 0 ? "S" : "N");
-        double longitude = 0; // TODO: get longitude form photo
+        double longitude = location.longitude;
         exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, String.valueOf(Coordinate.fromDecimalDegrees(longitude)));
         exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, longitude < 0 ? "W" : "E");
         exif.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, "0/1");

@@ -5,6 +5,8 @@ import android.graphics.BitmapFactory;
 import android.media.ExifInterface;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.io.IOException;
 
 import static android.media.ExifInterface.*;
@@ -26,24 +28,22 @@ public class PhotoLoader {
     }
 
     private static Photo fromExifInterface(ExifInterface exif) {
-        // TODO: get location
-        Void location = getLocationFrom(exif);
+        LatLng location = getLocationFrom(exif);
         Photo photo = new Photo();
-        // TODO: store location inside photo
+        photo.location = location;
         if (exif.hasThumbnail()) {
             photo.thumbnail = getThumbnailFrom(exif);
         }
         return photo;
     }
 
-    private static Void getLocationFrom(ExifInterface exif) {
+    private static LatLng getLocationFrom(ExifInterface exif) {
         float[] latLong = new float[2];
         if (!exif.getLatLong(latLong)) {
             return null;
         }
         logTags(exif);
-        // TODO: return a LatLng
-        return null;
+        return new LatLng(latLong[0], latLong[1]);
     }
 
     private static Bitmap getThumbnailFrom(ExifInterface exif) {
