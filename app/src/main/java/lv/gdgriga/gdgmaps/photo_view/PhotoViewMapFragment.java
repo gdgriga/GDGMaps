@@ -1,4 +1,6 @@
 package lv.gdgriga.gdgmaps.photo_view;
 
-public class PhotoViewMapFragment {
+import com.google.android.gms.maps.MapFragment;
+
+public class PhotoViewMapFragment extends MapFragment {
 }
