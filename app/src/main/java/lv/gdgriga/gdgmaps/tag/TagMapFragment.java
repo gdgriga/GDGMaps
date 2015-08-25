@@ -1,4 +1,6 @@
 package lv.gdgriga.gdgmaps.tag;
 
-public class TagMapFragment {
+import com.google.android.gms.maps.MapFragment;
+
+public class TagMapFragment extends MapFragment {
 }
