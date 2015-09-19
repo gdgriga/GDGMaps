@@ -3,9 +3,11 @@ package lv.gdgriga.gdgmaps.tag;
 import com.google.android.gms.maps.*;
 
 import lv.gdgriga.gdgmaps.Location;
+import lv.gdgriga.gdgmaps.Photo;
 
 public class TagMapFragment extends MapFragment {
     private GoogleMap map;
+    private Photo photo;
 
     OnMapReadyCallback onMapReady = new OnMapReadyCallback() {
         @Override
@@ -23,5 +25,9 @@ public class TagMapFragment extends MapFragment {
     public void onStart() {
         super.onStart();
         getMapAsync(onMapReady);
+    }
+
+    public void setPhotoToTag(Photo photo) {
+        this.photo = photo;
     }
 }
