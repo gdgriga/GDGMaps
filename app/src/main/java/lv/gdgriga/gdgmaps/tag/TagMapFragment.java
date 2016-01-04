@@ -3,6 +3,7 @@ package lv.gdgriga.gdgmaps.tag;
 import android.graphics.Bitmap;
 
 import com.google.android.gms.maps.*;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.model.*;
 
 import lv.gdgriga.gdgmaps.Location;
@@ -16,16 +17,20 @@ public class TagMapFragment extends MapFragment {
         @Override
         public void onMapReady(GoogleMap googleMap) {
             map = googleMap;
+            map.setOnMapClickListener(onMapClick);
             if (photo.hasLocation()) {
-                addPhotoMarker(photo);
-                focusOnLocation(photo.location);
+                drawPhoto();
             } else {
                 focusOnLocation(Location.RIGA);
             }
         }
+    };
 
-        private void focusOnLocation(LatLng location) {
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(location, Location.DEFAULT_ZOOM));
+    private final OnMapClickListener onMapClick = new OnMapClickListener() {
+        @Override
+        public void onMapClick(LatLng clickedLocation) {
+            photo.location = clickedLocation;
+            drawPhoto();
         }
     };
 
@@ -54,5 +59,15 @@ public class TagMapFragment extends MapFragment {
             return BitmapDescriptorFactory.fromBitmap(thumbnail);
         }
         return BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
+    }
+
+    private void drawPhoto() {
+        map.clear();
+        addPhotoMarker(photo);
+        focusOnLocation(photo.location);
+    }
+
+    private void focusOnLocation(LatLng location) {
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(location, Location.DEFAULT_ZOOM));
     }
 }
