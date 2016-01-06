@@ -7,4 +7,5 @@
     <string name="storeTag">Store Tag</string>
     <string name="photoPath">photoPath</string>
     <string name="tapOnMap">Tap on the Map</string>
+    <string name="googleApiKey">AIzaSyDci9tB6JMNqAR6sKjnUvL6JKJO0hgu7eg</string>
 </resources>
