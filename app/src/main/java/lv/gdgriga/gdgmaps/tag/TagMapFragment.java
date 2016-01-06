@@ -34,6 +34,23 @@ public class TagMapFragment extends MapFragment {
         }
     };
 
+    private final GoogleMap.OnMarkerDragListener onMarkerDrag = new GoogleMap.OnMarkerDragListener() {
+        @Override
+        public void onMarkerDragStart(Marker marker) {
+
+        }
+
+        @Override
+        public void onMarkerDrag(Marker marker) {
+
+        }
+
+        @Override
+        public void onMarkerDragEnd(Marker marker) {
+            photo.location = marker.getPosition();
+        }
+    };
+
     @Override
     public void onStart() {
         super.onStart();
@@ -46,6 +63,7 @@ public class TagMapFragment extends MapFragment {
 
     private void addPhotoMarker(Photo photo) {
         map.addMarker(markerFrom(photo));
+        map.setOnMarkerDragListener(onMarkerDrag);
     }
 
     private MarkerOptions markerFrom(Photo photo) {
