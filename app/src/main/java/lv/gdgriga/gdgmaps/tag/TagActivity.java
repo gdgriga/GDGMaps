@@ -12,7 +12,7 @@ import lv.gdgriga.gdgmaps.R;
 
 public class TagActivity extends Activity {
     private TagMapFragment mapFragment;
-    private Button okButton;
+    private Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +47,20 @@ public class TagActivity extends Activity {
     }
 
     private void setupButton() {
-        okButton = (Button) findViewById(R.id.bottom_button);
-        okButton.setText(R.string.tapOnMap);
-        okButton.setEnabled(false);
+        button = (Button) findViewById(R.id.bottom_button);
+        button.setText(R.string.tapOnMap);
+        button.setEnabled(false);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new StoreTagTask().execute(mapFragment.getPhoto());
+                finish();
+            }
+        });
+    }
+
+    void enableStoreTagButton() {
+        button.setText(R.string.storeTag);
+        button.setEnabled(true);
     }
 }

@@ -65,9 +65,14 @@ public class TagMapFragment extends MapFragment {
         map.clear();
         addPhotoMarker(photo);
         focusOnLocation(photo.location);
+        ((TagActivity) getActivity()).enableStoreTagButton();
     }
 
     private void focusOnLocation(LatLng location) {
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(location, Location.DEFAULT_ZOOM));
+    }
+
+    Photo getPhoto() {
+        return photo;
     }
 }
