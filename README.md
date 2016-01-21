@@ -477,7 +477,7 @@ public class TagMapFragment extends MapFragment {
 }
 ```
 
-## Providing a hint
+## Providing a Hint
 Right now it's not very clear for the user what he needs to do after the photo is picked, so let's add a hint. We have the button in the bottom of the screen, so let's put the hint on it. We'll setup the button in the **TagActivity**. Let's set the text of the button to *R.string.tapOnMap* by calling [*setText*](http://developer.android.com/reference/android/widget/TextView.html#setText%28java.lang.CharSequence%29). Let's also disable the button by calling [*setEnabled*](http://developer.android.com/reference/android/widget/TextView.html#setEnabled%28boolean%29) until the user taps on the map. Here's the related code:
 ```java
 public class TagActivity extends Activity {
