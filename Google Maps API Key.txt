@@ -1,0 +1,25 @@
+1. Generare a keystore with a private key
+keytool -genkey -v -keystore gdgmaps.keystore -alias gdgmaps -keyalg RSA -keysize 2048 -validity 10000
+
+2. Get the private key's SHA1
+keytool -list -v -keystore gdgmaps.keystore
+
+3. Go to Google Developers Console
+https://console.developers.google.com/project
+
+4. Create a new project
+
+5. APIs & auth >> APIs >> Google Maps Android API
+
+6. Click "Enable API"
+
+7. Go to "Credentials"
+
+8. Click Create new key, select Android key
+
+9. Copy the SHA1 you got at step 2 into the text field followed by a semicolon and a package name 'lv.gdgriga.gdgmaps'
+Example: 3A:2A:C6:AF:A9:71:D1:4F:97:D5:CA:04:AA:0F:B5:9D:DF:B3:27:EE;lv.gdgriga.gdgmaps
+
+10. Click "Create"
+
+11. Done
