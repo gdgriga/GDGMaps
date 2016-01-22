@@ -2,7 +2,7 @@ GDG Maps
 =========
 ## Introduction
 Welcome to yet another GDG Riga event. Today we're going to develop an Android app that will allow the user to view his photos on the map and add location tags to them. The end result is going to look something like this:
-![screen07](https://cloud.githubusercontent.com/assets/5235166/12495687/cc8dd4c6-c099-11e5-8b86-77009dedd419.png)
+![device-2016-01-20-225127](https://cloud.githubusercontent.com/assets/5235166/12517797/618d8514-c13d-11e5-8362-c311d31462da.png)
 
 ## Prerequisites
 * Java 7 JDK
@@ -29,7 +29,7 @@ First things first, let's launch the app. A blank screen should appear.
 
 ## Configuring the Dependencies
 Now let's add the necessary dependencies and configure the project.
-Start by adding a compile-time dependency on Google Play Services
+Start by adding a compile-time dependency on Google Play Services inside *app/build.gradle*
 ```groovy
 compile 'com.google.android.gms:play-services:7.3.0'
 ```
@@ -41,7 +41,7 @@ And adding the following entry to the manifest as a child of ``<application>`` n
 ```
 
 ## Adding the Key
-Now, let's add the API key you were provided to the resources file (app/src/main/res/values/strings.xml). Add the key as a string resource with name *googleApiKey*. Follow by configuring the manifest. Add these two meta entries:
+Now, let's add the API key to the resources file (app/src/main/res/values/strings.xml). Either generate the key on your own or get [this](https://docs.google.com/document/d/1UzgXOyp_qwItbj-qq2moL75kTlg7Q0gx2iU0bC9Ld48/view) one. Add the key as a string resource with name *googleApiKey*. Then, add it to the manifest
 ```xml
 <meta-data
     android:name="com.google.android.geo.API_KEY"
@@ -50,10 +50,11 @@ Now, let's add the API key you were provided to the resources file (app/src/main
 We're done with the configuration. Let's launch the app and observe the void once more (this is the last time, I promise).
 
 ## Plumbing
-Now it's time to get dirty with code. Let's start by setting up the supporting infrastructure. Since we will be working with the geographical data, we need some representation of it. Google API provides the class [*com.google.android.gms.maps.model.LatLng*](https://developers.google.com/android/reference/com/google/android/gms/maps/model/LatLng) to represent the geographical location in terms of point's coordinates. We'll be using this class throughout our application.
+Now it's time to get dirty with code. Let's start by setting up the supporting infrastructure. Since we will be working with the geographical data, we need some representation of it. Google API provides the class [*LatLng*](https://developers.google.com/android/reference/com/google/android/gms/maps/model/LatLng) to represent the geographical location in terms of point's coordinates (latitude and longitude). We'll be using this class throughout our application.
 
 The first thing we'll do is open the TODO tab in Android Studio and go through each item in the list.
-Let's start with *lv.gdgriga.gdgmaps.Photo*. As you can see it has two fields: a file name and a thumbnail. Another useful field to add would be a location so we could know where the photo was taken. This is how the class will look like after this addition:
+
+Let's start with *lv.gdgriga.gdgmaps.Photo*. As you can see it has two fields: a file name and a thumbnail. Another useful field to add would be the location where the photo was taken. Let's also add a method to check whether photo has location and call it *hasLocation*. This is how the class will look like after these additions:
 ```java
 public class Photo {
     public static final Photo EMPTY = new Photo();
@@ -69,9 +70,8 @@ public class Photo {
 Next, let's move over to *lv.gdgriga.gdgmaps.PhotoLoader*. It has two methods we need to modify (the ones with TODOs in them). The modified methods should look something like the ones below:
 ```java
 private static Photo fromExifInterface(ExifInterface exif) {
-    LatLng location = getLocationFrom(exif);
     Photo photo = new Photo();
-    photo.location = location;
+    photo.location = getLocationFrom(exif);
     if (exif.hasThumbnail()) {
         photo.thumbnail = getThumbnailFrom(exif);
     }
@@ -96,14 +96,13 @@ if (photo != Photo.EMPTY && photo.hasLocation()) {
 The last stop is *lv.gdgriga.gdgmaps.tag.StoreTagTask*. Get the latitude and the longitude from the Photo object:
 ```java
 private void storeLocationTag(Photo photo) throws IOException {
-     ExifInterface exif = new ExifInterface(photo.fileName);
-     LatLng location = photo.location;
-     double latitude = location.latitude;
-     exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, String.valueOf(Coordinate.fromDecimalDegrees(latitude)));
-     exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, latitude < 0 ? "S" : "N");
-     double longitude = location.longitude;
-     exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, String.valueOf(Coordinate.fromDecimalDegrees(longitude)));
-     ...
+    ExifInterface exif = new ExifInterface(photo.fileName);
+    double latitude = photo.location.latitude;
+    exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, String.valueOf(Coordinate.fromDecimalDegrees(latitude)));
+    exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, latitude < 0 ? "S" : "N");
+    double longitude = photo.location.longitude;
+    exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, String.valueOf(Coordinate.fromDecimalDegrees(longitude)));
+    ...
  }
 ```
 Run the app and check that you have no compilation errors. You have arrived at your destination!
@@ -111,12 +110,14 @@ Run the app and check that you have no compilation errors. You have arrived at y
 ## Building the Photo View
 Now that we're done warming up, let's start actually building our app. The app is going to have two views. One for photo display and the other for tagging. We'll start with the display one.
 
-Start by opening **PhotoViewActivity** and overriding the [onCreate](http://developer.android.com/reference/android/app/Activity.html#onCreate%28android.os.Bundle%29) method of the Activity class. Inside it, we're going to call the onCreate from the parent, set the layout and attach the PhotoViewMapFragment. Before we do that, let's move over to PhotoViewMapFragment and make it extend [**MapFragment**](https://developers.google.com/android/reference/com/google/android/gms/maps/MapFragment), like this:
+Start by opening **PhotoViewActivity** and overriding the [*onCreate*](http://developer.android.com/reference/android/app/Activity.html#onCreate%28android.os.Bundle%29) method of the [**Activity**](http://developer.android.com/reference/android/app/Activity.html) class. Inside it, we're going to call the [*onCreate*](http://developer.android.com/reference/android/app/Activity.html#onCreate%28android.os.Bundle%29) from the parent, [*set the content view*](http://developer.android.com/reference/android/app/Activity.html#setContentView%28int%29) to *R.layout.photo_view_activity* and attach the PhotoViewMapFragment.
+
+Before we do that, let's move over to PhotoViewMapFragment and make it extend [**MapFragment**](https://developers.google.com/android/reference/com/google/android/gms/maps/MapFragment), like this:
 ```java
 public class PhotoViewMapFragment extends MapFragment {
 }
 ```
-Now, go back to PhotoViewActivity and attach the fragment using the [Fragment Manager](http://developer.android.com/reference/android/app/FragmentManager.html). To do that, get the Fragment Manager for the view, begin a transaction, add a new instance of the PhotoViewMapFragment using the ID *R.id.map_container* and commit the transaction. When done, here's how PhotoViewActivity will look like:
+Now, go back to PhotoViewActivity and attach the fragment using the [Fragment Manager](http://developer.android.com/reference/android/app/FragmentManager.html). To do that, get the Fragment Manager for the view by calling [*getFragmentManager*](http://developer.android.com/reference/android/app/Activity.html#getFragmentManager%28%29), begin a transaction by calling [*beginTransaction*](http://developer.android.com/reference/android/app/FragmentManager.html#beginTransaction%28%29), [*add*](http://developer.android.com/reference/android/app/FragmentTransaction.html#add%28int,%20android.app.Fragment%29) a new instance of the **PhotoViewMapFragment** using the id *R.id.map_container* and [*commit*](http://developer.android.com/reference/android/app/FragmentTransaction.html#commit%28%29) the transaction. When done, here's how PhotoViewActivity will look like:
 ```java
 public class PhotoViewActivity extends Activity {
     @Override
@@ -133,34 +134,23 @@ public class PhotoViewActivity extends Activity {
     }
 }
 ```
-Run the app, it should look a little bit like this:
+Run the app and you should see the map (finally!)
 
-(Snapshot of the app with photo view and attached map fragment)
+![device-2016-01-22-233239](https://cloud.githubusercontent.com/assets/5235166/12523593/7b581068-c160-11e5-9bf0-9162ee956cde.png)
 
-## Building the Photo Fragment
-Next, let's build PhotoViewMapFragment up! Start by overriding the [onStart](http://developer.android.com/reference/android/app/Activity.html#onStart%28%29) method. Inside the method, be sure to call *onCreate* in parent and [getMapAsync](https://developers.google.com/android/reference/com/google/android/gms/maps/MapFragment.html#getMapAsync%28com.google.android.gms.maps.OnMapReadyCallback%29) which will set up the map for the fragment. You need to pass an instance of [OnMapReadyCallback](https://developers.google.com/android/reference/com/google/android/gms/maps/OnMapReadyCallback) to *getMapAsync*. When the map is ready, it'll be passed to the *onMapReady* method of the callback. Inside *onMapReady*, the first thing we'll do is save the map in the field of PhotoViewMapFragment. Next, we'll disable the map toolbar (we won't need it). To do it, we'll get the instance of [UiSettings](https://developers.google.com/android/reference/com/google/android/gms/maps/UiSettings) from the map object by calling [getUiSettings](https://developers.google.com/android/reference/com/google/android/gms/maps/GoogleMap#getUiSettings%28%29) and call ([setMapToolbarEnabled](https://developers.google.com/android/reference/com/google/android/gms/maps/UiSettings.html#setMapToolbarEnabled%28boolean%29) with **false** value) on it. Run the app and you should see the map (finally!).
+As you can see, adding a map is very easy. The basic map has pretty much all the functionality you would expect from a map. But let's change things a bit and configure the map the way we want to see it.
 
-(Snapshot of the app running with the initial map view)
-
-## Setting Up the Photo Map
-As you have noticed, the map is focused somewhere on the Equator, which probably is a nice place to be, but let's set the default location for the map anyway. To do that we're going to use the [Camera Update Factory](https://developers.google.com/android/reference/com/google/android/gms/maps/CameraUpdateFactory). Which will build the desired [CameraUpdate](https://developers.google.com/android/reference/com/google/android/gms/maps/CameraUpdate) object which, in turn, we'll pass to the [moveCamera](https://developers.google.com/android/reference/com/google/android/gms/maps/GoogleMap.html#moveCamera%28com.google.android.gms.maps.CameraUpdate%29) method of the [GoogleMap](https://developers.google.com/android/reference/com/google/android/gms/maps/GoogleMap) object. To move the camera to the desired location, which will be Riga, Latvia, we'll use the [newLatLngZoom](https://developers.google.com/android/reference/com/google/android/gms/maps/CameraUpdateFactory.html#newLatLngZoom%28com.google.android.gms.maps.model.LatLng,%20float%29) method of the CameraUpdateFactory. Before we do that, let's add a constant field which we'll name **RIGA** to **lv.gdgriga.gdgmaps.Location**. Like this:
-```java
-public class Location {
-    public static final float DEFAULT_ZOOM = 13;
-    public static final LatLng RIGA = new LatLng(56.948889, 24.106389);
-}
-```
-To build the CameraUpdate, we'll pass the coordinates for Riga and the default zoom to *newLatLngZoom*. When we're done, **PhotoViewMapFragment** will look like this:
+### Getting an Instance of GoogleMap
+We are going to need an instance of [**GoogleMap**
+](https://developers.google.com/android/reference/com/google/android/gms/maps/GoogleMap), so let's get it. Inside **PhotoViewMapFragment**, start by overriding the [*onStart*](http://developer.android.com/reference/android/app/Activity.html#onStart%28%29) method. Inside the method, be sure to call [*onStart*](http://developer.android.com/reference/android/app/Activity.html#onStart%28%29) in parent and [*getMapAsync*](https://developers.google.com/android/reference/com/google/android/gms/maps/MapFragment.html#getMapAsync%28com.google.android.gms.maps.OnMapReadyCallback%29) which will set up the map for the fragment. You need to pass an instance of [**OnMapReadyCallback**](https://developers.google.com/android/reference/com/google/android/gms/maps/OnMapReadyCallback) to [*getMapAsync*](https://developers.google.com/android/reference/com/google/android/gms/maps/MapFragment.html#getMapAsync%28com.google.android.gms.maps.OnMapReadyCallback%29). When the map is ready, it'll be passed to the [*onMapReady*](https://developers.google.com/android/reference/com/google/android/gms/maps/OnMapReadyCallback.html#onMapReady%28com.google.android.gms.maps.GoogleMap%29) method of the callback. Inside [*onMapReady*](https://developers.google.com/android/reference/com/google/android/gms/maps/OnMapReadyCallback.html#onMapReady%28com.google.android.gms.maps.GoogleMap%29), the first thing we'll do is save the map in the field of **PhotoViewMapFragment**. Run the app and make sure it's still working. We haven't changed anything yet, so the map should look the same. This is how **PhotoViewMapFragment** could look like:
 ```java
 public class PhotoViewMapFragment extends MapFragment {
     private GoogleMap map;
 
-    private OnMapReadyCallback onMapReady = new OnMapReadyCallback() {
+    OnMapReadyCallback onMapReady =  new OnMapReadyCallback(){
         @Override
         public void onMapReady(GoogleMap googleMap) {
             map = googleMap;
-            map.getUiSettings().setMapToolbarEnabled(false);
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(Location.RIGA, Location.DEFAULT_ZOOM));
         }
     };
 
@@ -171,12 +161,49 @@ public class PhotoViewMapFragment extends MapFragment {
     }
 }
 ```
+
+### Setting the Default Location
+As you have noticed, the map is focused somewhere on the Equator, which probably is a nice place to be, but let's set the default location for the map to somewhere more familiar.
+
+To change the location, we're going to use the [**CameraUpdateFactory**](https://developers.google.com/android/reference/com/google/android/gms/maps/CameraUpdateFactory). The factory will build the desired [**CameraUpdate**](https://developers.google.com/android/reference/com/google/android/gms/maps/CameraUpdate) object which, in turn, we'll pass to the [*moveCamera*](https://developers.google.com/android/reference/com/google/android/gms/maps/GoogleMap.html#moveCamera%28com.google.android.gms.maps.CameraUpdate%29) method of the [**GoogleMap**](https://developers.google.com/android/reference/com/google/android/gms/maps/GoogleMap) object. To move the camera to the desired location, which will be Riga, Latvia, we'll use the [*newLatLngZoom*](https://developers.google.com/android/reference/com/google/android/gms/maps/CameraUpdateFactory.html#newLatLngZoom%28com.google.android.gms.maps.model.LatLng,%20float%29) method of the [**CameraUpdateFactory**](https://developers.google.com/android/reference/com/google/android/gms/maps/CameraUpdateFactory). Before we do that, let's add a constant field which we'll name **RIGA** to **lv.gdgriga.gdgmaps.Location**. Like this:
+```java
+public class Location {
+    public static final float DEFAULT_ZOOM = 13;
+    public static final LatLng RIGA = new LatLng(56.948889, 24.106389);
+}
+```
+To build the [**CameraUpdate**](https://developers.google.com/android/reference/com/google/android/gms/maps/CameraUpdate), we'll pass the coordinates for Riga and the default zoom to *newLatLngZoom*. When we're done, *onMapReady* will look like this:
+```java
+private OnMapReadyCallback onMapReady = new OnMapReadyCallback() {
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        map = googleMap;
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(Location.RIGA, Location.DEFAULT_ZOOM));
+    }
+};
+```
 Run the app, now the map should focus on Riga.
+![device-2016-01-23-002237](https://cloud.githubusercontent.com/assets/5235166/12524685/73361d06-c167-11e5-9c58-236840d3dc9b.png)
 
-(Snapshot of the app focused on Riga)
+### Displaying the Photos
+It's time to display the photos! To do that, we'll add a *drawPhotos* method which we'll call from inside *onMapReady* of the **OnMapReadyCallback**.
 
-## Displaying the Photos
-It's time to display the photos! To do that, we'll add a *drawPhotos* method which we'll call from inside *onMapReady* of the **OnMapReadyCallback**. The first thing we'll do inside *drawPhotos* is clear the map by using the [clear](https://developers.google.com/android/reference/com/google/android/gms/maps/GoogleMap.html#clear%28%29) method of the map object. Then we'll iterate over the list of photos in the gallery that have location tags embedded in them. Don't worry, the list was already prepared for you and all you need to get it is to call **PhotosWithLocation**.*list* passing an instance of [Context](http://developer.android.com/reference/android/content/Context.html) to it. To get the context from the **PhotoViewMapFragment** you first need to get the activity to which the fragment is attached to and get the application context from it. You can do it by calling [getActivity](http://developer.android.com/reference/android/app/Fragment.html#getActivity%28%29) and [getApplicationContext](http://developer.android.com/reference/android/content/ContextWrapper.html#getApplicationContext%28%29) respectively. To add a photo to the map we are going to need to make a marker of it first. To do that, we'll convert the photo's thumbnail into a [BitmapDescriptor](https://developers.google.com/android/reference/com/google/android/gms/maps/model/BitmapDescriptor) by calling [**BitmapDescriptorFactory**.*fromBitmap*](https://developers.google.com/android/reference/com/google/android/gms/maps/model/BitmapDescriptorFactory.html#fromBitmap%28android.graphics.Bitmap%29) and add it as an icon to the marker. To add a marker to the map, we first need to create an instance of [MarkerOptions](https://developers.google.com/android/reference/com/google/android/gms/maps/model/MarkerOptions) builder class. The marker attributes are set through that instance which, in turn, is attached to the map. The marker attribute that we're going to set are position, icon and snippet. The position is set through [position](https://developers.google.com/android/reference/com/google/android/gms/maps/model/MarkerOptions.html#position%28com.google.android.gms.maps.model.LatLng%29) method of **MarkerOptions**. Get the position from the photo's *location* field.  To set the icon, use the [icon](https://developers.google.com/android/reference/com/google/android/gms/maps/model/MarkerOptions.html#icon%28com.google.android.gms.maps.model.BitmapDescriptor%29) method. Pass in the **BitmapDescriptor** instance we created from the thumbnail. We'll also store the file name of the photo in the snippet field of the options by using the [snippet](https://developers.google.com/android/reference/com/google/android/gms/maps/model/MarkerOptions.html#snippet%28java.lang.String%29) method (which is a hack and you probably shouldn't do it in a production-scale app, but it's fine for our workshop, the snippet won't be displayed if the title is not set). We are going to need the stored file name later. Get the file name from *fileName* field of the Photo object.
+The first thing we'll do inside *drawPhotos* is clear the map by using the [*clear*](https://developers.google.com/android/reference/com/google/android/gms/maps/GoogleMap.html#clear%28%29) method of the map object. Then we'll iterate over the list of photos in the gallery that have location tags embedded in them. Don't worry, the list was already prepared for you and all you need to get it is to call **PhotosWithLocation**.*list()* passing in an instance of [**Context**](http://developer.android.com/reference/android/content/Context.html).
+
+To get the context from the **PhotoViewMapFragment**, you first need to get the activity to which the fragment is attached to,  then get the application context from it. You can do it by calling [*getActivity*](http://developer.android.com/reference/android/app/Fragment.html#getActivity%28%29) and [*getApplicationContext*](http://developer.android.com/reference/android/content/ContextWrapper.html#getApplicationContext%28%29) respectively.
+
+To add a photo to the map we are going to need to make a marker of it first. To do that, we'll convert the photo's thumbnail into a [**BitmapDescriptor**](https://developers.google.com/android/reference/com/google/android/gms/maps/model/BitmapDescriptor) by calling [**BitmapDescriptorFactory**.*fromBitmap*](https://developers.google.com/android/reference/com/google/android/gms/maps/model/BitmapDescriptorFactory.html#fromBitmap%28android.graphics.Bitmap%29) and add it as an icon to the marker.
+
+To add a marker to the map, we first need to create an instance of [**MarkerOptions**](https://developers.google.com/android/reference/com/google/android/gms/maps/model/MarkerOptions) builder class. The marker attributes are set through that instance which, in turn, is attached to the map. The marker attribute that we're going to set are position, icon, anchor and snippet.
+
+The position is set through [*position*](https://developers.google.com/android/reference/com/google/android/gms/maps/model/MarkerOptions.html#position%28com.google.android.gms.maps.model.LatLng%29) method of **MarkerOptions**. Get the position from the photo's *location* field.
+
+To set the icon, use the [*icon*](https://developers.google.com/android/reference/com/google/android/gms/maps/model/MarkerOptions.html#icon%28com.google.android.gms.maps.model.BitmapDescriptor%29) method. Pass in the **BitmapDescriptor** instance we created from the thumbnail.
+
+By default, the anchor of a bitmap is located in the middle of it's left side, which is kind of weird. Let's fix it by setting the anchor to be dead center by calling [*anchor*](https://developers.google.com/android/reference/com/google/android/gms/maps/model/MarkerOptions#anchor%28float,%20float%29) with both of the parameters equal to *0.5* (remember that counting starts from the top left corner).
+
+We'll also store the file name of the photo in the snippet field of the options by using the [*snippet*](https://developers.google.com/android/reference/com/google/android/gms/maps/model/MarkerOptions.html#snippet%28java.lang.String%29) method (which is a hack and you probably shouldn't do it in a production-scale app, but it's fine for our workshop, the snippet won't be displayed if the title is not set). We are going to need the stored file name later. Get the file name from *fileName* field of the Photo object.
+
 To add the newly-populated **MarkerOptions** to the map, call the [addMarker](https://developers.google.com/android/reference/com/google/android/gms/maps/GoogleMap.html#addMarker%28com.google.android.gms.maps.model.MarkerOptions%29) on the map. Do it inside the photo-iterating loop. Here's the whole **PhotoViewMapFragment** after the changes:
 ```java
 public class PhotoViewMapFragment extends MapFragment {
@@ -185,9 +212,7 @@ public class PhotoViewMapFragment extends MapFragment {
     private OnMapReadyCallback onMapReady = new OnMapReadyCallback() {
         @Override
         public void onMapReady(GoogleMap googleMap) {
-            map = googleMap;
-            map.getUiSettings()
-               .setMapToolbarEnabled(false);
+            map = googleMap
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(Location.RIGA, Location.DEFAULT_ZOOM));
             drawPhotos();
         }
@@ -202,7 +227,7 @@ public class PhotoViewMapFragment extends MapFragment {
     private void drawPhotos() {
         map.clear();
         for (Photo photo : PhotosWithLocation.list(context())) {
-            map.addMarker(markerFrom(photo));
+            map.addMarker(toMarker(photo));
         }
     }
 
@@ -210,18 +235,22 @@ public class PhotoViewMapFragment extends MapFragment {
         return getActivity().getApplicationContext();
     }
 
-    private MarkerOptions markerFrom(Photo photo) {
-        Bitmap thumbnail = photo.thumbnail;
-        BitmapDescriptor icon = thumbnail != null ? BitmapDescriptorFactory.fromBitmap(thumbnail) : BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
+    private MarkerOptions toMarker(Photo photo) {
+        BitmapDescriptor icon = photo.thumbnail != null ?
+                BitmapDescriptorFactory.fromBitmap(photo.thumbnail) :
+                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE);
         return new MarkerOptions().position(photo.location)
                                   .icon(icon)
+                                  .anchor(0.5f, 0.5f)
                                   .snippet(photo.fileName);
     }
 }
 ```
-As you've noticed, we've added a fallback for the marker icon if a photo has no thumbnail. Check [BitmapDescriptor](https://developers.google.com/android/reference/com/google/android/gms/maps/model/BitmapDescriptor) out for more options.
+As you've noticed, we've added a fallback for the marker icon if a photo has no thumbnail. Check [**BitmapDescriptor**](https://developers.google.com/android/reference/com/google/android/gms/maps/model/BitmapDescriptor) out for more options.
 
 Run the app, it should display your photos. If not, that probably means that none of your photos have Geo tags in them. We're going to fix this by implementing our own photo-tagging solution. Read on!
+
+![device-2016-01-23-005253](https://cloud.githubusercontent.com/assets/5235166/12525335/2b572e9e-c16c-11e5-9da6-790c1ce45a83.png)
 
 ## Building the Tagging View
 We need some way to tag or photos so that we can display them on our map. Let's create a view to do just that! We'll start by modifying **TagMapFragment** so that it extends [MapFragment](https://developers.google.com/android/reference/com/google/android/gms/maps/MapFragment):
