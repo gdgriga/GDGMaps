@@ -10,7 +10,7 @@ Welcome to yet another GDG Riga event. Today we're going to develop an Android a
 * Android Studio 2.0 (or higher) with SDK v22 (+ appcompat for the version of your device) and Google Play Services installed.
 
 ## Setting Up the Android Studio
-* Download [Android Studio IDE](http://developer.android.com/sdk/index.html#win-bundle)
+* Download [Android Studio IDE 2.0 Preview](http://tools.android.com/download/studio/canary/latest)
 * Follow the [instructions](http://developer.android.com/sdk/installing/index.html?pkg=studio) to get started
 * Install the Android SDK through the Android Studio's (AS) wizard
 * Install the Android 5.1.1 (API v22) SDK platform
